@@ -1,0 +1,18 @@
+[project]
+name = "foodorder"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=1.9.0",
+    "mcp>=1.10",
+    "python-dotenv>=1.2.3",
+    "rich>=15.0.0",
+]
+
+[project.scripts]
+foodorder = "foodorder.agent:run"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
