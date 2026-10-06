@@ -42,10 +42,13 @@ class CheckoutAgent:
         self.confirm = confirm
         self.trace = trace
         self._address_line: str | None = None
+        self._restaurant: dict | None = None  # Swiggy's cart response omits the restaurant id/name
         self._cart_snapshot: Any = None
 
-    async def run(self, task: str, address_line: str | None = None) -> str:
+    async def run(self, task: str, address_line: str | None = None, restaurant: dict | None = None) -> str:
+        """restaurant={"id", "name"} of the cart, so the order can be rebuilt later ("my usual")."""
         self._address_line = address_line
+        self._restaurant = restaurant
         tools = self.hub.claude_tools(CHECKOUT_MCP_TOOL_NAMES)
         harness = AgentHarness(
             self.client, CHECKOUT_AGENT_SYSTEM_PROMPT, tools, self._dispatch, max_iterations=MAX_ITERATIONS
@@ -77,7 +80,8 @@ class CheckoutAgent:
             _, cart, _ = await self.hub.call(provider, "get_food_cart", {"addressId": args.get("addressId", "")})
             self._cart_snapshot = cart
             restaurant = find_key(cart, "restaurant") or {}
-            lines = [f"{label} order from {restaurant.get('name', '?')}"]
+            name = (self._restaurant or {}).get("name") or restaurant.get("name") or "?"
+            lines = [f"{label} order from {name}"]
             for it in find_key(cart, "items") or []:
                 lines.append(f"  {it.get('quantity')} x {it.get('name')}  Rs{it.get('final_price', it.get('total'))}")
             pricing = find_key(cart, "pricing") or {}
@@ -99,7 +103,7 @@ class CheckoutAgent:
         items = find_key(cart, "items") or []
         pricing = find_key(cart, "pricing") or {}
         offers = find_key(cart, "offers") or {}
-        restaurant = find_key(cart, "restaurant") or {}
+        restaurant = {**(find_key(cart, "restaurant") or {}), **{k: v for k, v in (self._restaurant or {}).items() if v}}
         record = {
             "provider_order_id": order_id,
             "restaurant_id": restaurant.get("id"),

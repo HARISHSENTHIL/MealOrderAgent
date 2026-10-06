@@ -79,7 +79,7 @@ class _Connection:
 
     async def _run(self) -> None:
         auth = build_oauth_provider(
-            self.provider.url, DBTokenStorage(self.user_id, self.provider.name), self.provider.label, self.login
+            self.provider.url, DBTokenStorage(self.user_id, self.provider.token_key), self.provider.label, self.login
         )
         async with create_mcp_http_client(auth=auth) as http:
             async with streamable_http_client(self.provider.url, http_client=http) as (read, write):

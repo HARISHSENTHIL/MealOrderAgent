@@ -113,6 +113,8 @@ DELEGATE_CHECKOUT_TOOL = {
                 "description": "Human-readable delivery address, for the confirmation prompt.",
             },
             "paymentMethod": {"type": "string", "description": "Optional; omit to use the default/COD."},
+            "restaurantId": {"type": "string", "description": "The cart's restaurant id (saved with the order for 'my usual')."},
+            "restaurantName": {"type": "string", "description": "The cart's restaurant name."},
             "task": {"type": "string", "description": "e.g. 'place the order' or 'check pending UPI payment'."},
         },
         "required": ["addressId", "addressLine", "task"],

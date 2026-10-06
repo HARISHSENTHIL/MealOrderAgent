@@ -11,6 +11,7 @@ from collections.abc import Awaitable, Callable
 
 import anthropic
 
+from foodorder.agents.gate import DECLINED, ConfirmFn, confirm_gated
 from foodorder.agents.harness import AgentHarness
 from foodorder.agents.prompts import CART_AGENT_SYSTEM_PROMPT
 from foodorder.providers import ProviderHub, split_tool_name
@@ -24,9 +25,10 @@ TraceFn = Callable[[str], Awaitable[None]] | None
 
 
 class CartAgent:
-    def __init__(self, client: anthropic.AsyncAnthropic, hub: ProviderHub, trace: TraceFn = None):
+    def __init__(self, client: anthropic.AsyncAnthropic, hub: ProviderHub, confirm: ConfirmFn, trace: TraceFn = None):
         self.client = client
         self.hub = hub
+        self.confirm = confirm  # emptying the cart wipes what the user added in the app: ask first
         self.trace = trace
 
     async def run(self, task: str) -> str:
@@ -46,5 +48,7 @@ class CartAgent:
         if not parsed:
             return f"Unknown tool {name}", True
         provider, tool = parsed
+        if not await confirm_gated(self.hub, self.confirm, provider, tool, args):
+            return DECLINED, True
         text, _structured, is_error = await self.hub.call(provider, tool, args)
         return text, is_error

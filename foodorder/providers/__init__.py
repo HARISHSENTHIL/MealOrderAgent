@@ -13,11 +13,22 @@ from foodorder.providers.hub import (
     split_tool_name,
     to_claude_tool,
 )
-from foodorder.providers.registry import ENABLED_PROVIDERS, PROVIDERS, RISKY_NAME, Provider
+from foodorder.providers.registry import (
+    ENABLED_PROVIDERS,
+    GROCERY_PROVIDERS,
+    LOGIN_PROVIDERS,
+    OWNER_ONLY_PROVIDERS,
+    PROVIDERS,
+    RISKY_NAME,
+    Provider,
+)
 
 __all__ = [
     "CALL_TIMEOUT_S",
     "ENABLED_PROVIDERS",
+    "GROCERY_PROVIDERS",
+    "LOGIN_PROVIDERS",
+    "OWNER_ONLY_PROVIDERS",
     "PROVIDERS",
     "Provider",
     "ProviderHub",

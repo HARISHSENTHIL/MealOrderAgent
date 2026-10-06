@@ -44,11 +44,11 @@ from telegram.ext import (
     filters,
 )
 
-from foodorder.agents import FoodAgent
+from foodorder.agents.orchestrator import FoodAgent
 from foodorder.core import db, voice
 from foodorder.core.auth import CALLBACK_PORT, REDIRECT_URI, LoginRequired, is_redirect_whitelisted, parse_callback_url
 from foodorder.core.importer import import_all
-from foodorder.providers import ENABLED_PROVIDERS, PROVIDERS, ProviderHub
+from foodorder.providers import ENABLED_PROVIDERS, GROCERY_PROVIDERS, OWNER_ONLY_PROVIDERS, PROVIDERS, ProviderHub
 
 log = logging.getLogger("foodorder.telegram")
 
@@ -193,10 +193,6 @@ class FoodBot:
                 "Stop it first (Ctrl+C in its terminal)."
             )
         self._bg.append(asyncio.create_task(self._nudge_loop()))
-        await app.bot.set_my_commands(
-            [("start", "Home"), ("new", "Fresh conversation"), ("login", "Connect Swiggy"),
-             ("status", "Logins & history"), ("import", "Refresh order history"), ("forget_me", "Delete my data")]
-        )
 
     async def _shutdown(self, app: Application) -> None:
         for t in self._bg:
@@ -250,6 +246,8 @@ class FoodBot:
             s.agent = FoodAgent(
                 s.hub, s.user_id, self._confirm_fn(s), self._say_fn(s),
                 surface_hint=SURFACE_HINT, choices=self._choices_fn(s),
+                grocery_platforms=tuple(p for p in GROCERY_PROVIDERS
+                                        if p not in OWNER_ONLY_PROVIDERS or self._is_owner(s.user_id)),
             )
         if problems or not s.hub.sessions:
             names = problems or ["swiggy"]

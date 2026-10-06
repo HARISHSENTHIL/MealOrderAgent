@@ -1,3 +1,1 @@
-from foodorder.agents.orchestrator import FoodAgent
-
-__all__ = ["FoodAgent"]
+"""Agents: router (intent), orchestrator (conversation), cart/checkout workers, shared harness."""

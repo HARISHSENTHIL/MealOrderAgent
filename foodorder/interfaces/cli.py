@@ -24,11 +24,11 @@ from rich.prompt import Prompt
 
 load_dotenv()
 
-from foodorder.agents import FoodAgent  # noqa: E402
+from foodorder.agents.orchestrator import FoodAgent  # noqa: E402
 from foodorder.core import db  # noqa: E402  (reads env set by load_dotenv)
 from foodorder.core.auth import DBTokenStorage, migrate_legacy_files  # noqa: E402
 from foodorder.core.importer import import_all  # noqa: E402
-from foodorder.providers import ENABLED_PROVIDERS, PROVIDERS, ProviderHub  # noqa: E402
+from foodorder.providers import ENABLED_PROVIDERS, LOGIN_PROVIDERS, PROVIDERS, ProviderHub  # noqa: E402
 
 console = Console()
 CLI_USER = "cli:local"
@@ -115,8 +115,8 @@ def main() -> None:
     migrate_legacy_files(user_id)
 
     def provider_arg() -> str:
-        if len(args) < 2 or args[1] not in ENABLED_PROVIDERS:
-            console.print(f"Usage: foodorder {cmd} {'|'.join(ENABLED_PROVIDERS)}")
+        if len(args) < 2 or args[1] not in LOGIN_PROVIDERS:
+            console.print(f"Usage: foodorder {cmd} {'|'.join(sorted(LOGIN_PROVIDERS))}")
             sys.exit(2)
         return args[1]
 
