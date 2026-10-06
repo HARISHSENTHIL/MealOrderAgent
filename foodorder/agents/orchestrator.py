@@ -36,7 +36,7 @@ from foodorder.tools.ui import SHOW_OPTIONS_TOOL, SHOW_OPTIONS_TOOL_NAME
 IDLE_RESET_S = int(os.environ.get("FOODORDER_IDLE_RESET_S", "3600"))
 MAX_MESSAGES = int(os.environ.get("FOODORDER_MAX_MESSAGES", "80"))
 
-# Swiggy MCP "Discover" + "Track" + "Support" stage tools (see docs/reference_food_index.md).
+# Swiggy MCP "Discover" + "Track" + "Support" stage tools (https://mcp.swiggy.com/builders/docs/reference/food/).
 # create_address/delete_address are here too (they're account edits, not ordering) - they stay
 # gated via hub.is_gated(), same as any risky tool.
 ORCHESTRATOR_MCP_TOOL_NAMES = {

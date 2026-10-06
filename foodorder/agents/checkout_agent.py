@@ -19,7 +19,7 @@ from foodorder.core import db
 from foodorder.core.utils import find_key
 from foodorder.providers import PROVIDERS, ProviderHub, split_tool_name
 
-# Swiggy MCP "Payment" + "Order" stage tools (see docs/reference_food_index.md).
+# Swiggy MCP "Payment" + "Order" stage tools (https://mcp.swiggy.com/builders/docs/reference/food/).
 CHECKOUT_MCP_TOOL_NAMES = {"get_payment_options", "place_food_order", "check_payment_status", "confirm_order"}
 MAX_ITERATIONS = 6
 

@@ -85,9 +85,7 @@ class _CallbackServer:
                     return
                 qs = parse_qs(url.query)
                 if "code" in qs:
-                    outer.result = AuthorizationCodeResult(
-                        code=qs["code"][0], state=qs.get("state", [None])[0]
-                    )
+                    outer.result = _code_result(qs)
                     body = "Login complete. You can close this tab and return to the terminal."
                 else:
                     outer.error = qs.get("error_description", qs.get("error", ["unknown error"]))[0]
@@ -152,7 +150,15 @@ def parse_callback_url(text: str) -> AuthorizationCodeResult | None:
     qs = parse_qs(urlparse(match.group(0)).query)
     if "code" not in qs:
         return None
-    return AuthorizationCodeResult(code=qs["code"][0], state=qs.get("state", [None])[0])
+    return _code_result(qs)
+
+
+def _code_result(qs: dict[str, list[str]]) -> AuthorizationCodeResult:
+    """Build the SDK's code result. `iss` (RFC 9207) must be passed through: servers that
+    advertise it (e.g. Zepto) are rejected by the SDK's mix-up check if it's dropped."""
+    return AuthorizationCodeResult(
+        code=qs["code"][0], state=qs.get("state", [None])[0], iss=qs.get("iss", [None])[0]
+    )
 
 
 async def is_redirect_whitelisted(redirect_uri: str) -> bool:

@@ -16,7 +16,7 @@ from foodorder.agents.prompts import CART_AGENT_SYSTEM_PROMPT
 from foodorder.providers import ProviderHub, split_tool_name
 from foodorder.tools.coupons import COUPON_TOOL, COUPON_TOOL_NAME, run_coupon_tool
 
-# Swiggy MCP "Cart" stage tools (see docs/reference_food_index.md) - exactly what this agent may call.
+# Swiggy MCP "Cart" stage tools (https://mcp.swiggy.com/builders/docs/reference/food/) - exactly what this agent may call.
 CART_MCP_TOOL_NAMES = {"get_food_cart", "update_food_cart", "flush_food_cart", "fetch_food_coupons", "apply_food_coupon"}
 MAX_ITERATIONS = 8
 
