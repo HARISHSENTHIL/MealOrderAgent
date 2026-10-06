@@ -4,7 +4,7 @@
 foodorder finds it, picks the best deal, and orders it after a single ✅ tap.
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
-![Claude](https://img.shields.io/badge/AI-Claude%20Opus%205.5%20%2B%20Haiku%204.5-D97757)
+![Claude](https://img.shields.io/badge/AI-Anthropic%20Claude-D97757)
 ![MCP](https://img.shields.io/badge/Integration-Model%20Context%20Protocol-6E56CF)
 ![Telegram](https://img.shields.io/badge/Interface-Telegram-26A5E4?logo=telegram&logoColor=white)
 ![Postgres](https://img.shields.io/badge/DB-PostgreSQL-4169E1?logo=postgresql&logoColor=white)
@@ -67,106 +67,12 @@ Bot:  🛒 9/10 items found on Instamart · ₹1,134
 
 ## 🧠 How it works
 
-```
-Telegram / Terminal
-      │  text · button taps · voice (speech-to-text)
-      ▼
-Intent router ── Claude Haiku 4.5, ~1 s, structured output
-      ├─ order food / my usual ─► guided flow: address → restaurant → dish → qty → cart + best coupon → pay → ✅
-      ├─ cook a dish ──────────► ingredient planner → grocery flow (Instamart)
-      ├─ groceries ────────────► search Instamart + Zepto → product matcher → comparison → cart → pay → ✅
-      ├─ track · spending · history ─► instant answers
-      └─ anything else ────────► conversational agent (Claude Opus 5.5) with cart & checkout sub-agents
-                                        │
-            Model Context Protocol (official servers): Swiggy Food · Instamart · Zepto
-                                        │
-                              PostgreSQL: users · encrypted logins · orders · preferences
-```
+foodorder understands what you want, then follows a guided, button-first flow to get it done. It connects only
+to the platforms' **official** integrations, signs in with **your own account**, and never places an order without
+your confirmation.
 
-**Why this design?** A fast, cheap classifier routes the most common requests into **deterministic, button-driven
-flows**, which are quick (0–2 s per step), predictable, and free of made-up values. The large model is kept for
-open-ended conversation, where its flexibility actually matters.
-
-### Tech stack
-
-| Layer | Technology |
-|---|---|
-| AI | [Anthropic Claude](https://www.anthropic.com/) (Opus 5.5 for conversation, Haiku 4.5 for routing, matching and planning) via the official `anthropic` SDK |
-| Commerce integrations | [Model Context Protocol](https://modelcontextprotocol.io/) (`mcp` SDK) with OAuth 2.1 + PKCE: Swiggy Food, Swiggy Instamart, Zepto |
-| Interface | Telegram (`python-telegram-bot`), plus a terminal client (`rich`) |
-| Voice | ElevenLabs Scribe speech-to-text |
-| Data | PostgreSQL via SQLAlchemy 2; Fernet (`cryptography`) encryption for stored logins |
-| Runtime | Python 3.12, asyncio, `uv` |
-
-## 🚀 Getting started
-
-**Prerequisites:** Python 3.12, [uv](https://docs.astral.sh/uv/), PostgreSQL (optional; SQLite is the fallback),
-an Anthropic API key, and a Telegram bot token from [@BotFather](https://t.me/BotFather).
-
-```bash
-git clone <this-repo> && cd foodorder
-uv sync
-cp .env.example .env              # add ANTHROPIC_API_KEY and TELEGRAM_BOT_TOKEN
-uv run foodorder login swiggy     # sign in with phone + OTP in the browser
-uv run foodorder telegram         # start the bot
-```
-
-In Telegram, send the bot `/pair <code>` (the code is printed in the terminal) to link your chat to your login.
-Anyone else who messages the bot gets their own account and connects their own Swiggy.
-
-<details>
-<summary><b>Commands</b></summary>
-
-| Terminal | |
-|---|---|
-| `uv run foodorder` | Chat in the terminal |
-| `uv run foodorder telegram` | Run the Telegram bot |
-| `uv run foodorder login swiggy` | Swiggy login (also used for Instamart; expires every 5 days) |
-| `uv run foodorder login zepto` | Zepto login (owner only) |
-| `uv run foodorder status` | Logins, stored orders, preferences |
-| `uv run foodorder import` | Pull past orders into the database |
-| `uv run foodorder forget-me` | Delete everything stored for you |
-
-| Telegram | |
-|---|---|
-| `/start` | Home menu: 🔁 My usual · 🔥 Best deals · 📦 Track order · 🧾 My orders |
-| `/login` | Connect your own Swiggy account |
-| `/pair <code>` | Owner only: link this chat to the host's logins and history |
-| `/new` · `/status` · `/import` · `/forget_me` | Fresh chat · logins & history · refresh history · delete my data |
-
-</details>
-
-<details>
-<summary><b>Configuration (<code>.env</code>)</b></summary>
-
-| Variable | Default | Purpose |
-|---|---|---|
-| `ANTHROPIC_API_KEY` | required | Claude |
-| `TELEGRAM_BOT_TOKEN` | required for the bot | Telegram |
-| `FOODORDER_DB_URL` | SQLite in `~/.foodorder/` | e.g. `postgresql+psycopg://user@localhost:5432/foodorder` |
-| `FOODORDER_SECRET_KEY` | `~/.foodorder/secret.key` | Encrypts stored logins; keep it with the database |
-| `ELEVENLABS_API_KEY` | off | Voice notes |
-| `FOODORDER_PUBLIC_URL` | off | Public HTTPS address for automatic login return (once whitelisted by Swiggy) |
-| `FOODORDER_DAILY_LIMIT` | `40` | Messages per user per day (owner unlimited) |
-| `FOODORDER_MODEL` / `FOODORDER_EFFORT` | `claude-opus-5-5` / `medium` | Conversational agent |
-| `FOODORDER_ROUTER_MODEL` | `claude-haiku-4-5` | Router, product matcher and ingredient planner |
-
-</details>
-
-<details>
-<summary><b>Project layout</b></summary>
-
-```
-foodorder/
-  agents/       router (intent), orchestrator, cart & checkout sub-agents, shared harness, confirmation gate
-  flows/        guided flows: order (incl. "my usual"), grocery, ingredients, product matcher, info
-  tools/        memory (preferences, history, spending), coupons, UI buttons
-  providers/    platform registry (which tools need confirmation) and MCP connection hub
-  core/         OAuth + encrypted token storage, database, order-history import, voice
-  interfaces/   Telegram bot, terminal client
-```
-
-</details>
+Built with **Anthropic Claude** for understanding natural language, the **Model Context Protocol** for official
+commerce integrations, **Telegram** as the chat interface and **PostgreSQL** for secure storage.
 
 ## 🧭 Roadmap
 
@@ -175,7 +81,7 @@ Here are our short-to-long term plans:
 **Shipped**
 
 - [x] **Conversational food ordering**: Swiggy Food via the official MCP server, with guided button flows and a ✅ gate enforced in code.
-- [x] **Intent router**: Claude Haiku classifies each message in ~1 s across English, Hinglish and Tamil, and routes common requests to fast, deterministic flows.
+- [x] **Instant understanding**: messages in English, Hinglish and Tamil are understood in about a second, and common requests run as fast, guided flows.
 - [x] **Automatic best coupon**: every applicable coupon is tried on the live cart and the lowest total wins.
 - [x] **Memory**: preferences, budgets, order history and "my usual".
 - [x] **Multi-user Telegram bot**: every user signs in to their own Swiggy account; logins are encrypted, with per-user limits.
@@ -205,7 +111,7 @@ Here are our short-to-long term plans:
 | | |
 |---|---|
 | Per-order cap | ₹1,000 on Swiggy developer access |
-| Login lifetime | Swiggy logins last 5 days; sign in again with `foodorder login swiggy` |
+| Login lifetime | Swiggy sign-ins last 5 days, then you sign in again |
 | Order history | Swiggy's API returns only a few recent orders ([#50](https://github.com/Swiggy/swiggy-mcp-server-manifest/issues/50), [#74](https://github.com/Swiggy/swiggy-mcp-server-manifest/issues/74)); orders placed through foodorder are always saved |
 | Zepto | Available to the bot owner only, until Zepto confirms its policy for third-party apps |
 | Cancellations | Not supported by the platforms' APIs; contact the platform's customer care |
